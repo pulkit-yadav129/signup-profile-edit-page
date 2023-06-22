@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Signup</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Signup</h1>
+  
+  <form id="signup-form">
+    <label for="name">Name:</label>
+    <input type="text" id="name" required>
+    <br>
+    
+    <label for="email">Email:</label>
+    <input type="email" id="email" required>
+    <br>
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" required>
+    <br>
+
+    <label for="confirm-password">Confirm Password:</label>
+    <input type="password" id="confirm-password" required>
+    <div id="password-error" class="error"></div>
+
+    <label for="age">Age:</label>
+    <input type="number" id="age" required>
+
+    <label for="gender">Gender:</label>
+    <select id="gender" required>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+
+    <label for="height">Height (in cm):</label>
+    <input type="number" id="height" required>
+
+    <label for="weight">Weight (in kg):</label>
+    <input type="number" id="weight" required>
+
+    <label for="fitness-goals">Fitness Goals:</label>
+    <textarea id="fitness-goals" rows="4" required></textarea>
+    
+    <button type="submit">Sign Up</button>
+  </form>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+
+    function validatePassword() {
+      var password = document.getElementById('password').value;
+      var confirmPassword = document.getElementById('confirm-password').value;
+      var passwordError = document.getElementById('password-error');
+
+      if (password !== confirmPassword) {
+        passwordError.textContent = 'Passwords do not match';
+        return false;
+      } else {
+        passwordError.textContent = '';
+        return true;
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+  
+    firebase.initializeApp(firebaseConfig);
+
+  
+    var database = firebase.database();
+
+    
+    var signupForm = document.getElementById('signup-form');
+
+    
+    signupForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        if(validatePassword()){
+
+        
+            var name = document.getElementById('name').value;
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+            var age = document.getElementById('age').value;
+            var gender = document.getElementById('gender').value;
+            var height = document.getElementById('height').value;
+            var weight = document.getElementById('weight').value;
+            var fitnessGoals = document.getElementById('fitness-goals').value;
+            
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then(function(userCredential) {
+                
+                var userId = userCredential.user.uid;
+
+                
+                database.ref('users/' + userId).set({
+                name: name,
+                email: email,
+                password: password,
+                age: age,
+                gender: gender,
+                height: height,
+                weight: weight,
+                fitnessGoals: fitnessGoals
+                })
+                .then(function() {
+                
+                window.location.href = 'profile_edit.html'; 
+                })
+                .catch(function(error) {
+                console.log('Error storing user data:', error);
+                });
+            })
+            .catch(function(error) {
+                console.log('Error creating user:', error);
+            });
+        }
+        else
+        {
+            alert('Passwords do not match!!!');
+        }
+  });
+});
+
+  </script>
+</body>
+</html>

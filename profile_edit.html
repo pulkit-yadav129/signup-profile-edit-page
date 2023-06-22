@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Profile Edit</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Profile Edit</h1>
+  
+  <form id="edit-form">
+    <label for="name">Name:</label>
+    <input type="text" id="name" required>
+    <br>
+    
+    <label for="email">Email:</label>
+    <input type="email" id="email" required>
+    <br>
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" required>
+    <br>
+
+    <label for="age">Age:</label>
+    <input type="number" id="age" required>
+
+    <label for="gender">Gender:</label>
+    <select id="gender" required>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+
+    <label for="height">Height (in cm):</label>
+    <input type="number" id="height" required>
+
+    <label for="weight">Weight (in kg):</label>
+    <input type="number" id="weight" required>
+
+    <label for="fitness-goals">Fitness Goals:</label>
+    <textarea id="fitness-goals" rows="4" required></textarea>
+    
+    <button type="submit">Save Changes</button>
+  </form>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    firebase.initializeApp(firebaseConfig);
+
+    
+    var database = firebase.database();
+
+    var user = firebase.auth().currentUser;
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        var userID = user.uid;
+        var userRef = database.ref('users/' + userID);
+
+        userRef.once('value').then(function(snapshot) {
+          var userData = snapshot.val();
+
+          document.getElementById('name').value = userData.name;
+          document.getElementById('email').value = userData.email;
+          document.getElementById('password').value = userData.password;
+          document.getElementById('age').value = userData.age;
+          document.getElementById('gender').value = userData.gender;
+          document.getElementById('height').value = userData.height;
+          document.getElementById('weight').value =userData.weight;
+          document.getElementById('fitness-goals').value = userData.fitnessGoals;
+        });
+
+        
+        document.getElementById('edit-form').addEventListener('submit', function(event) {
+          event.preventDefault(); 
+
+          
+          var name = document.getElementById('name').value;
+          var email = document.getElementById('email').value;
+          var password = document.getElementById('password').value;
+          var age = document.getElementById('age').value;
+          var gender = document.getElementById('gender').value;
+          var height = document.getElementById('height').value;
+          var weight = document.getElementById('weight').value;
+          var fitnessGoals = document.getElementById('fitness-goals').value;
+
+          
+          userRef.update({
+            name: name,
+            email: email,
+            password: password,
+            age: age,
+            gender: gender,
+            height: height,
+            weight: weight,
+            fitnessGoals: fitnessGoals
+          }).then(function() {
+            alert('Changes saved successfully!');
+            
+          }).catch(function(error) {
+            alert('Failed to save changes: ' + error.message);
+          });
+        });
+      } else {
+        
+        console.log("User not signed in!!");
+      }
+    });
+  </script>
+</body>
+</html>
